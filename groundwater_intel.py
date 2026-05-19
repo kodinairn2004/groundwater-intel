@@ -154,18 +154,49 @@ LOCAL_FILE = "wellcompletionreports.csv"
 @st.cache_data(show_spinner=False)
 def load_data(use_live: bool = False) -> pd.DataFrame:
     """Load, clean, and filter the well completion dataset."""
+    import os
+    import requests
+    from io import StringIO
+
     if use_live:
-        import ssl
-        import urllib.request
-        ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
-        import requests
-        response = requests.get(LIVE_URL, verify=False)
-        from io import StringIO
-        df = pd.read_csv(StringIO(response.text), low_memory=False)
+        try:
+            st.toast("Downloading live data from California DWR...", icon="📡")
+            response = requests.get(LIVE_URL, verify=False, timeout=300)
+            df = pd.read_csv(StringIO(response.text), low_memory=False)
+        except Exception as e:
+            st.warning(f"Live download failed: {e}. Trying local file.")
+            df = pd.read_csv(LOCAL_FILE, low_memory=False)
     else:
-        df = pd.read_csv(LOCAL_FILE, low_memory=False)
+        if os.path.exists(LOCAL_FILE):
+            df = pd.read_csv(LOCAL_FILE, low_memory=False)
+        else:
+            st.info("Local file not found — downloading from California DWR. "
+                    "This takes 5–15 minutes...")
+            response = requests.get(LIVE_URL, verify=False, timeout=300)
+            df = pd.read_csv(StringIO(response.text), low_memory=False)
+
+    # Date cleaning
+    df["DATEWORKENDED"] = pd.to_datetime(df["DATEWORKENDED"], errors="coerce")
+    df["YEAR"] = df["DATEWORKENDED"].dt.year
+    df = df[(df["YEAR"] >= 1980) & (df["YEAR"] <= 2025)].copy()
+
+    # Agriculture filter
+    ag_filter = df["PLANNEDUSEFORMERUSE"].astype(str).str.contains(
+        "Irrigation - Agriculture|Stock or Animal Watering",
+        case=False, na=False
+    )
+    df = df[ag_filter].copy()
+
+    # Cap outliers at 99th percentile
+    for col in ["TOTALDRILLDEPTH", "TOTALCOMPLETEDDEPTH",
+                "STATICWATERLEVEL", "WELLYIELD"]:
+        q99 = df[col].quantile(0.99)
+        df[col] = df[col].clip(upper=q99)
+
+    # Fix longitude sign
+    df.loc[df["DECIMALLONGITUDE"] > 0, "DECIMALLONGITUDE"] *= -1
+
+    return df
 
     # Date cleaning
     df["DATEWORKENDED"] = pd.to_datetime(df["DATEWORKENDED"], errors="coerce")
