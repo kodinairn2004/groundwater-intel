@@ -166,9 +166,15 @@ def load_data(use_live: bool = False) -> pd.DataFrame:
         except Exception as e:
             st.warning(f"Live download failed: {e}. Trying local file.")
             df = pd.read_csv(LOCAL_FILE, low_memory=False)
-    else:
+   else:
+        import os
         if os.path.exists(LOCAL_FILE):
             df = pd.read_csv(LOCAL_FILE, low_memory=False)
+        else:
+            import requests
+            from io import StringIO
+            response = requests.get(LIVE_URL, verify=False, timeout=300)
+            df = pd.read_csv(StringIO(response.text), low_memory=False)
         else:
             st.info("Local file not found — downloading from California DWR. "
                     "This takes 5–15 minutes...")
