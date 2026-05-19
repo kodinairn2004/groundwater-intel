@@ -156,11 +156,8 @@ def load_data(use_live: bool = False) -> pd.DataFrame:
     import os, requests
     from io import StringIO
 
-    if not use_live and os.path.exists(LOCAL_FILE):
-        df = pd.read_csv(LOCAL_FILE, low_memory=False)
-    else:
-        response = requests.get(LIVE_URL, verify=False, timeout=300)
-        df = pd.read_csv(StringIO(response.text), low_memory=False)
+  response = requests.get(LIVE_URL, verify=False, timeout=300)
+df = pd.read_csv(StringIO(response.text), low_memory=False)
 
     df["DATEWORKENDED"] = pd.to_datetime(df["DATEWORKENDED"], errors="coerce")
     df["YEAR"] = df["DATEWORKENDED"].dt.year
