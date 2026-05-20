@@ -221,6 +221,9 @@ with st.sidebar:
     persona = st.selectbox(
         "persona",
         ["🌾 Farmer", "🏦 Lender", "💧 Water Manager", "📊 Student"],
+        index=["🌾 Farmer", "🏦 Lender", "💧 Water Manager", "📊 Student"].index(
+            st.session_state.get("persona_key", "🌾 Farmer")
+        ),
         label_visibility="collapsed"
     )
 
@@ -235,6 +238,10 @@ with st.sidebar:
         "page",
         ["🏠 Home", "📖 My Story", "🗺️ Well Map",
          "🔍 County Deep Dive", "📋 Data Explorer", "⚗️ Methods"],
+        index=["🏠 Home", "📖 My Story", "🗺️ Well Map",
+               "🔍 County Deep Dive", "📋 Data Explorer", "⚗️ Methods"].index(
+            st.session_state.get("page_key", "🏠 Home")
+        ),
         label_visibility="collapsed"
     )
 
@@ -387,9 +394,17 @@ if page == "🏠 Home":
               <div class='persona-desc'>{desc}</div>
             </div>
             """, unsafe_allow_html=True)
-            if st.button(f"Start as {title}", key=f"persona_{title}",
+            if st.button(f"Start as {title}",
+                         key=f"btn_{title}",
                          use_container_width=True):
-                st.session_state["persona_choice"] = f"{icon} {title}"
+                persona_map = {
+                    "Farmer": "🌾 Farmer",
+                    "Lender": "🏦 Lender",
+                    "Water Manager": "💧 Water Manager",
+                    "Student": "📊 Student"
+                }
+                st.session_state["persona_key"] = persona_map[title]
+                st.session_state["page_key"] = "📖 My Story"
                 st.rerun()
 
     # Quick preview chart
