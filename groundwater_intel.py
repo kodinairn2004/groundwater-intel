@@ -159,7 +159,7 @@ if os.path.exists(LOCAL_FILE):
 else:
     response = requests.get(LIVE_URL, verify=False, 
                         timeout=600, allow_redirects=True)
-df = pd.read_csv(StringIO(response.text), low_memory=False)
+    df = pd.read_csv(StringIO(response.text), low_memory=False)
 
     df["DATEWORKENDED"] = pd.to_datetime(df["DATEWORKENDED"], errors="coerce")
     df["YEAR"] = df["DATEWORKENDED"].dt.year
