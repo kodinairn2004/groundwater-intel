@@ -150,35 +150,28 @@ LOCAL_FILE = "AgricultureWellCompletionReport.csv"
 
 @st.cache_data(show_spinner=False)
 def load_data(use_live: bool = False) -> pd.DataFrame:
+    import os
     import requests
     from io import StringIO
-
-    import os
-if os.path.exists(LOCAL_FILE):
-    df = pd.read_csv(LOCAL_FILE, low_memory=False)
-else:
-    response = requests.get(LIVE_URL, verify=False, 
-                        timeout=600, allow_redirects=True)
-    df = pd.read_csv(StringIO(response.text), low_memory=False)
-
+    if os.path.exists(LOCAL_FILE):
+        df = pd.read_csv(LOCAL_FILE, low_memory=False)
+    else:
+        response = requests.get(LIVE_URL, verify=False, timeout=600)
+        df = pd.read_csv(StringIO(response.text), low_memory=False)
     df["DATEWORKENDED"] = pd.to_datetime(df["DATEWORKENDED"], errors="coerce")
     df["YEAR"] = df["DATEWORKENDED"].dt.year
     df = df[(df["YEAR"] >= 1980) & (df["YEAR"] <= 2025)].copy()
-
     ag_filter = df["PLANNEDUSEFORMERUSE"].astype(str).str.contains(
         "Irrigation - Agriculture|Stock or Animal Watering",
         case=False, na=False
     )
     df = df[ag_filter].copy()
-
     for col in ["TOTALDRILLDEPTH", "TOTALCOMPLETEDDEPTH",
                 "STATICWATERLEVEL", "WELLYIELD"]:
         q99 = df[col].quantile(0.99)
         df[col] = df[col].clip(upper=q99)
-
     df.loc[df["DECIMALLONGITUDE"] > 0, "DECIMALLONGITUDE"] *= -1
-
-        return df
+    return df
 
     # Date cleaning
     df["DATEWORKENDED"] = pd.to_datetime(df["DATEWORKENDED"], errors="coerce")
