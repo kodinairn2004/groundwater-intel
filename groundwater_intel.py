@@ -270,6 +270,7 @@ with st.sidebar:
     with st.spinner("Loading Groundwater Intel data..."):
         df_full = load_data(use_live)
 
+    st.write(df_full.columns.tolist())
     all_counties = sorted(df_full["COUNTYNAME"].dropna().unique().tolist())
     county_filter = st.multiselect(
         "Counties (leave blank for all)",
