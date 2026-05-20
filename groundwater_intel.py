@@ -271,7 +271,10 @@ with st.sidebar:
         df_full = load_data(use_live)
 
     st.write(df_full.columns.tolist())
-    all_counties = sorted(df_full["COUNTYNAME"].dropna().unique().tolist())
+    if "COUNTYNAME" not in df_full.columns:
+    st.error(f"Columns found: {df_full.columns.tolist()}")
+    st.stop()
+all_counties = sorted(df_full["COUNTYNAME"].dropna().unique().tolist())
     county_filter = st.multiselect(
         "Counties (leave blank for all)",
         all_counties,
