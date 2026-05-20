@@ -153,11 +153,11 @@ LOCAL_FILE = "wellcompletionreports.csv"
 
 @st.cache_data(show_spinner=False)
 def load_data(use_live: bool = False) -> pd.DataFrame:
-    import os, requests
+    import requests
     from io import StringIO
 
-  response = requests.get(LIVE_URL, verify=False, timeout=300)
-df = pd.read_csv(StringIO(response.text), low_memory=False)
+    response = requests.get(LIVE_URL, verify=False, timeout=600)
+    df = pd.read_csv(StringIO(response.text), low_memory=False)
 
     df["DATEWORKENDED"] = pd.to_datetime(df["DATEWORKENDED"], errors="coerce")
     df["YEAR"] = df["DATEWORKENDED"].dt.year
