@@ -145,10 +145,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ── DATA LOADING ─────────────────────────────────────────────
-LIVE_URL = (
-    "https://data.cnra.ca.gov/dataset/647afc02-8954-426d-aabd-eff418d2652c"
-    "/resource/8da7b93b-4e69-495d-9caa-335691a1896b/download/wellcompletionreports.csv"
-)
+LIVE_URL = "https://drive.google.com/uc?export=download&id=12XxOUBUhYJDMagl0oRbRiTt3xWVAJ7CX"
 LOCAL_FILE = "AgricultureWellCompletionReport.csv"
 
 @st.cache_data(show_spinner=False)
@@ -160,8 +157,9 @@ def load_data(use_live: bool = False) -> pd.DataFrame:
 if os.path.exists(LOCAL_FILE):
     df = pd.read_csv(LOCAL_FILE, low_memory=False)
 else:
-    response = requests.get(LIVE_URL, verify=False, timeout=600)
-    df = pd.read_csv(StringIO(response.text), low_memory=False)
+    response = requests.get(LIVE_URL, verify=False, 
+                        timeout=600, allow_redirects=True)
+df = pd.read_csv(StringIO(response.text), low_memory=False)
 
     df["DATEWORKENDED"] = pd.to_datetime(df["DATEWORKENDED"], errors="coerce")
     df["YEAR"] = df["DATEWORKENDED"].dt.year
