@@ -178,7 +178,7 @@ else:
 
     df.loc[df["DECIMALLONGITUDE"] > 0, "DECIMALLONGITUDE"] *= -1
 
-    return df
+        return df
 
     # Date cleaning
     df["DATEWORKENDED"] = pd.to_datetime(df["DATEWORKENDED"], errors="coerce")
