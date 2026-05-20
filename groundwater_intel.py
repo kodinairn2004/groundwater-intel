@@ -164,11 +164,12 @@ def load_data(use_live: bool = False) -> pd.DataFrame:
     elif "YEAR" not in df.columns:
         df["YEAR"] = 2000
     df = df[(df.get("YEAR", 2000) >= 1980) & (df.get("YEAR", 2000) <= 2025)].copy()
-    ag_filter = df["PLANNEDUSEFORMERUSE"].astype(str).str.contains(
-        "Irrigation - Agriculture|Stock or Animal Watering",
-        case=False, na=False
-    )
-    df = df[ag_filter].copy()
+   if "PLANNEDUSEFORMERUSE" in df.columns:
+        ag_filter = df["PLANNEDUSEFORMERUSE"].astype(str).str.contains(
+            "Irrigation - Agriculture|Stock or Animal Watering",
+            case=False, na=False
+        )
+        df = df[ag_filter].copy()
     for col in ["TOTALDRILLDEPTH", "TOTALCOMPLETEDDEPTH",
                 "STATICWATERLEVEL", "WELLYIELD"]:
         q99 = df[col].quantile(0.99)
