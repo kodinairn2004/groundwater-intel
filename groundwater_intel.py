@@ -158,9 +158,12 @@ def load_data(use_live: bool = False) -> pd.DataFrame:
     else:
         response = requests.get(LIVE_URL, verify=False, timeout=600)
         df = pd.read_csv(StringIO(response.text), low_memory=False)
-    df["DATEWORKENDED"] = pd.to_datetime(df["DATEWORKENDED"], errors="coerce")
-    df["YEAR"] = df["DATEWORKENDED"].dt.year
-    df = df[(df["YEAR"] >= 1980) & (df["YEAR"] <= 2025)].copy()
+    if "DATEWORKENDED" in df.columns:
+        df["DATEWORKENDED"] = pd.to_datetime(df["DATEWORKENDED"], errors="coerce")
+        df["YEAR"] = df["DATEWORKENDED"].dt.year
+    elif "YEAR" not in df.columns:
+        df["YEAR"] = 2000
+    df = df[(df.get("YEAR", 2000) >= 1980) & (df.get("YEAR", 2000) <= 2025)].copy()
     ag_filter = df["PLANNEDUSEFORMERUSE"].astype(str).str.contains(
         "Irrigation - Agriculture|Stock or Animal Watering",
         case=False, na=False
