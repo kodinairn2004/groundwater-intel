@@ -156,6 +156,10 @@ def load_data(use_live: bool = False) -> pd.DataFrame:
     import requests
     from io import StringIO
 
+    import os
+if os.path.exists(LOCAL_FILE):
+    df = pd.read_csv(LOCAL_FILE, low_memory=False)
+else:
     response = requests.get(LIVE_URL, verify=False, timeout=600)
     df = pd.read_csv(StringIO(response.text), low_memory=False)
 
