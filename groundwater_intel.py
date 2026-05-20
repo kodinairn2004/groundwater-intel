@@ -149,7 +149,7 @@ LIVE_URL = (
     "https://data.cnra.ca.gov/dataset/647afc02-8954-426d-aabd-eff418d2652c"
     "/resource/8da7b93b-4e69-495d-9caa-335691a1896b/download/wellcompletionreports.csv"
 )
-LOCAL_FILE = "wellcompletionreports.csv"
+LOCAL_FILE = "AgricultureWellCompletionReport.csv"
 
 @st.cache_data(show_spinner=False)
 def load_data(use_live: bool = False) -> pd.DataFrame:
